@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -32,11 +33,45 @@ std::string join(std::string delimiter, std::vector<std::string> tokens) {
 }
 
 int main(int argc, char **argv) {
+    std::ifstream fin;
+    std::ofstream fout;
+    
+    std::istream* in = &std::cin;
+    std::ostream* out = &std::cout;
+    
     std::string input_delimiter = ",";
     std::string output_delimiter = ",";
     
     for (int i = 1; i < argc; ++i) {
-        if (std::string(argv[i]) == "-id") {
+        if (std::string(argv[i]) == "-i") {
+            ++i;
+            if (i < argc) {
+                fin.open(argv[i]);
+                if (!fin.is_open()) {
+                    std::cerr << "Failed to open input file" << std::endl;
+                    return -1;
+                }
+                in = &fin;
+            } else {
+                std::cerr << "Missing argument after '-i'" << std::endl;
+                return -1;
+            }
+        }
+        else if (std::string(argv[i]) == "-o") {
+            ++i;
+            if (i < argc) {
+                fout.open(argv[i]);
+                if (!fout.is_open()) {
+                    std::cerr << "Failed to open output file" << std::endl;
+                    return -1;
+                }
+                out = &fout;
+            } else {
+                std::cerr << "Missing argument after '-o'" << std::endl;
+                return -1;
+            }
+        }
+        else if (std::string(argv[i]) == "-id") {
             ++i;
             if (i < argc) {
                 input_delimiter = argv[i];
@@ -58,12 +93,10 @@ int main(int argc, char **argv) {
         }
     }
     
-    std::string line;
-    
-    while (std::getline(std::cin, line)) {
+    for (std::string line; std::getline(*in, line);) {
         std::vector<std::string> tokens = tokenize(input_delimiter, line);
         std::string joined = join(output_delimiter, tokens);
-        std::cout << joined << std::endl;
+        *out << joined << std::endl;
     }
     
     return 0;
