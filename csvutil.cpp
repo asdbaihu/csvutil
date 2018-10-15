@@ -33,6 +33,22 @@ std::string join(std::string delimiter, std::vector<std::string> tokens) {
 }
 
 int main(int argc, char **argv) {
+    if (argc == 2 && (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")) {
+        std::cout
+            << "Usage: csvutil [OPTION]..." << std::endl
+            << "Performs common operations on csv data." << std::endl
+            << std::endl
+            << "-h, --help    shows this information" << std::endl
+            << "-i            read from specified file instead of stdin" << std::endl
+            << "-o            write to specified file instead of stdout" << std::endl
+            << "-id           specify input delimiter" << std::endl
+            << "-od           specify output delimiter" << std::endl
+            << "-rh           remove a header (ignore first line of input)" << std::endl
+            << "-ah           add a specified header" << std::endl
+        ;
+        return 0;
+    }
+    
     std::ifstream fin;
     std::ofstream fout;
     
