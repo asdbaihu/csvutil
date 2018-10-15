@@ -42,6 +42,10 @@ int main(int argc, char **argv) {
     std::string input_delimiter = ",";
     std::string output_delimiter = ",";
     
+    bool remove_header = false;
+    bool add_header = false;
+    std::string header;
+    
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "-i") {
             ++i;
@@ -87,13 +91,31 @@ int main(int argc, char **argv) {
                 std::cerr << "Missing argument after '-od'" << std::endl;
                 return -1;
             }
+        } else if (std::string(argv[i]) == "-rh") {
+            remove_header = true;
+        } else if (std::string(argv[i]) == "-ah") {
+            add_header = true;
+            ++i;
+            if (i < argc) {
+                header = argv[i];
+            } else {
+                std::cerr << "Missing argument after '-ah'" << std::endl;
+                return -1;
+            }
         } else {
             std::cerr << "Unrecognized argument: " << argv[i] << std::endl;
             return -1;
         }
     }
     
-    for (std::string line; std::getline(*in, line);) {
+    std::string line;
+    if (remove_header) {
+        std::getline(*in, line);
+    }
+    if (add_header) {
+        *out << header << std::endl;
+    }
+    while (std::getline(*in, line)) {
         std::vector<std::string> tokens = tokenize(input_delimiter, line);
         std::string joined = join(output_delimiter, tokens);
         *out << joined << std::endl;
