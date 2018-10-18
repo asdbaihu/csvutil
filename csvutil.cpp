@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+
 std::vector<std::string> tokenize(std::string delimiter, std::string line) {
     std::vector<std::string> tokens;
     
@@ -19,6 +20,7 @@ std::vector<std::string> tokenize(std::string delimiter, std::string line) {
     return tokens;
 }
 
+
 std::string join(std::string delimiter, std::vector<std::string> tokens) {
     std::string joined;
     
@@ -31,6 +33,18 @@ std::string join(std::string delimiter, std::vector<std::string> tokens) {
     
     return joined;
 }
+
+
+std::string strip(std::string str) {
+    size_t start = str.find_first_not_of(" \t");
+    if (start == std::string::npos) {
+        return str;
+    } else {
+        size_t end = str.find_last_not_of(" \t");
+        return str.substr(start, end - start + 1);
+    }
+}
+
 
 int main(int argc, char **argv) {
     if (argc == 2 && (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")) {
@@ -45,6 +59,7 @@ int main(int argc, char **argv) {
             << "-od           specify output delimiter" << std::endl
             << "-rh           remove a header (ignore first line of input)" << std::endl
             << "-ah           add a specified header" << std::endl
+            << "-t            trim whitespace" << std::endl
         ;
         return 0;
     }
@@ -61,6 +76,8 @@ int main(int argc, char **argv) {
     bool remove_header = false;
     bool add_header = false;
     std::string header;
+    
+    bool trim = false;
     
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "-i") {
@@ -118,6 +135,8 @@ int main(int argc, char **argv) {
                 std::cerr << "Missing argument after '-ah'" << std::endl;
                 return -1;
             }
+        } else if (std::string(argv[i]) == "-t") {
+            trim = true;
         } else {
             std::cerr << "Unrecognized argument: " << argv[i] << std::endl;
             return -1;
@@ -133,6 +152,11 @@ int main(int argc, char **argv) {
     }
     while (std::getline(*in, line)) {
         std::vector<std::string> tokens = tokenize(input_delimiter, line);
+        if (trim) {
+            for (int i = 0; i < tokens.size(); ++i) {
+                tokens[i] = strip(tokens[i]);
+            }
+        }
         std::string joined = join(output_delimiter, tokens);
         *out << joined << std::endl;
     }
